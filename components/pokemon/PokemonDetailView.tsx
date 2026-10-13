@@ -19,17 +19,17 @@ export default function PokemonDetailView({ pokemon, species }: PokemonDetailVie
   const artwork = pokemon.sprites.other?.["official-artwork"]?.front_default ?? pokemon.sprites.front_default ?? "";
 
   return (
-    <main className="relative isolate min-h-screen overflow-hidden bg-gradient-to-br from-slate-50 via-white to-red-50 px-5 py-8 sm:px-8 lg:py-12">
+    <main className="relative isolate min-h-screen overflow-hidden bg-gradient-to-br from-[#eef2ff] via-white to-[#e0e7ff] px-5 py-8 sm:px-8 lg:py-12">
       <Link
         href="/"
-        className="mb-8 inline-flex items-center gap-2 text-sm font-bold text-[#e3350d] transition hover:text-[#7f1d1d]"
+        className="mb-8 inline-flex items-center gap-2 text-sm font-bold text-[#3b4cca] transition hover:text-[#1e1b4b]"
       >
         ← Volver al catálogo
       </Link>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_1.1fr]">
-        <section className="rounded-[2rem] bg-gradient-to-br from-red-600 via-rose-600 to-orange-500 p-6 text-white shadow-xl sm:p-10">
-          <p className="text-lg font-bold text-red-100">{formatPokemonId(pokemon.id)}</p>
+        <section className="rounded-[2rem] bg-gradient-to-br from-[#312e81] via-[#4c1d95] to-[#6d28d9] p-6 text-white shadow-xl sm:p-10">
+          <p className="text-lg font-bold text-[#ffde00]">{formatPokemonId(pokemon.id)}</p>
           <h1 className="mt-2 text-4xl font-black capitalize sm:text-6xl">{pokemon.name}</h1>
           <div className="mt-5 flex flex-wrap gap-2">
             {pokemon.types.map(({ type }) => (
@@ -46,6 +46,9 @@ export default function PokemonDetailView({ pokemon, species }: PokemonDetailVie
               priority
             />
           </div>
+          <p className="mt-4 text-center text-lg font-black uppercase tracking-[0.2em] text-[#ffde00] [text-shadow:2px_2px_0_#1e1b4b] sm:text-xl">
+            ¡Es {pokemon.name}!
+          </p>
         </section>
 
         <div className="space-y-6">
@@ -74,7 +77,7 @@ export default function PokemonDetailView({ pokemon, species }: PokemonDetailVie
           </section>
 
           <section className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-            <h2 className="text-2xl font-black text-[#172554]">Estadísticas base</h2>
+            <h2 className="text-2xl font-black text-[#1e1b4b]">Estadísticas base</h2>
             <div className="mt-6 space-y-4">
               {pokemon.stats.map(({ stat, base_stat }) => (
                 <StatBar key={stat.name} name={stat.name} value={base_stat} />

@@ -211,7 +211,7 @@ export default function PokemonExplorer({ initialCatalog }: { initialCatalog: Po
 
   return (
     <section aria-label="Catálogo de Pokémon">
-      <div className="relative z-30 mb-6 rounded-3xl border-2 border-[#ffde00]/80 bg-white/95 p-4 shadow-xl shadow-[#172554]/15 backdrop-blur sm:p-5">
+      <div className="relative z-30 mb-6 rounded-3xl border-2 border-[#ffde00]/80 bg-white/95 p-4 shadow-xl shadow-[#1e1b4b]/15 backdrop-blur sm:p-5">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end">
           <SearchInput value={query} onChange={setQuery} />
           <div className="flex flex-wrap gap-3">
@@ -220,7 +220,7 @@ export default function PokemonExplorer({ initialCatalog }: { initialCatalog: Po
               <select
                 value={sort}
                 onChange={(event) => setSort(event.target.value)}
-                className="h-11 rounded-xl border border-[#3b4cca]/30 bg-white px-3 text-sm font-semibold normal-case tracking-normal text-[#172554] outline-none focus:border-[#3b4cca] focus:ring-4 focus:ring-[#3b4cca]/20"
+                className="h-11 rounded-xl border border-[#3b4cca]/30 bg-white px-3 text-sm font-semibold normal-case tracking-normal text-[#1e1b4b] outline-none focus:border-[#3b4cca] focus:ring-4 focus:ring-[#3b4cca]/20"
               >
                 <option value="id">Número Pokédex</option>
                 <option value="name">Nombre A-Z</option>
@@ -231,7 +231,7 @@ export default function PokemonExplorer({ initialCatalog }: { initialCatalog: Po
               <select
                 value={generation}
                 onChange={(event) => setGeneration(event.target.value)}
-                className="h-11 rounded-xl border border-[#3b4cca]/30 bg-white px-3 text-sm font-semibold normal-case tracking-normal text-[#172554] outline-none focus:border-[#3b4cca] focus:ring-4 focus:ring-[#3b4cca]/20"
+                className="h-11 rounded-xl border border-[#3b4cca]/30 bg-white px-3 text-sm font-semibold normal-case tracking-normal text-[#1e1b4b] outline-none focus:border-[#3b4cca] focus:ring-4 focus:ring-[#3b4cca]/20"
               >
                 {generations.map((entry) => (
                   <option key={entry.value} value={entry.value}>
@@ -251,7 +251,7 @@ export default function PokemonExplorer({ initialCatalog }: { initialCatalog: Po
                 aria-controls="pokemon-type-options"
                 onClick={() => setIsTypeMenuOpen((open) => !open)}
                 onKeyDown={handleTypeTriggerKeyDown}
-                className="flex h-11 items-center justify-between rounded-xl border border-slate-300 bg-white px-3 text-left text-sm font-semibold normal-case tracking-normal text-[#172554] outline-none transition hover:border-[#3b4cca] focus:border-[#3b4cca] focus:ring-4 focus:ring-[#3b4cca]/20"
+                className="flex h-11 items-center justify-between rounded-xl border border-slate-300 bg-white px-3 text-left text-sm font-semibold normal-case tracking-normal text-[#1e1b4b] outline-none transition hover:border-[#3b4cca] focus:border-[#3b4cca] focus:ring-4 focus:ring-[#3b4cca]/20"
               >
                 <span>{selectedTypes.length === 0 ? "Todos los tipos" : `${selectedTypes.length} seleccionados`}</span>
                 <span aria-hidden="true">⌄</span>
@@ -276,10 +276,10 @@ export default function PokemonExplorer({ initialCatalog }: { initialCatalog: Po
                           role="option"
                           aria-selected={isSelected}
                           onClick={() => toggleType(pokemonType)}
-                          className={`flex items-center gap-2 rounded-lg px-2 py-2 text-left font-bold capitalize transition ${isSelected ? "bg-[#3b4cca] text-white" : "text-[#172554] hover:bg-[#ffde00]"}`}
+                          className={`flex items-center gap-2 rounded-lg px-2 py-2 text-left font-bold capitalize transition ${isSelected ? "bg-[#3b4cca] text-white" : "text-[#1e1b4b] hover:bg-[#ffde00]"}`}
                         >
                           <span
-                            className={`flex h-4 w-4 items-center justify-center rounded border text-[10px] ${isSelected ? "border-white bg-white text-[#3b4cca]" : "border-[#172554]"}`}
+                            className={`flex h-4 w-4 items-center justify-center rounded border text-[10px] ${isSelected ? "border-white bg-white text-[#3b4cca]" : "border-[#1e1b4b]"}`}
                           >
                             {isSelected ? "✓" : ""}
                           </span>
@@ -300,7 +300,7 @@ export default function PokemonExplorer({ initialCatalog }: { initialCatalog: Po
                 key={filter.label}
                 type="button"
                 onClick={filter.clear}
-                className="inline-flex items-center gap-2 rounded-full bg-[#3b4cca] px-3 py-2 text-xs font-bold text-white transition hover:bg-[#172554]"
+                className="inline-flex items-center gap-2 rounded-full bg-[#3b4cca] px-3 py-2 text-xs font-bold text-white transition hover:bg-[#1e1b4b]"
               >
                 {filter.label}
                 <span aria-hidden="true" className="text-sm leading-none">×</span>
@@ -326,11 +326,11 @@ export default function PokemonExplorer({ initialCatalog }: { initialCatalog: Po
         ) : (
           <div className="rounded-3xl border-2 border-dashed border-[#3b4cca] bg-white px-6 py-16 text-center">
             {searching && searchLoading ? (
-              <p className="font-semibold text-[#172554]">Buscando…</p>
+              <p className="font-semibold text-[#1e1b4b]">Buscando…</p>
             ) : (
               <>
                 <p className="text-4xl">🔎</p>
-                <h2 className="mt-4 text-2xl font-black text-[#172554]">
+                <h2 className="mt-4 text-2xl font-black text-[#1e1b4b]">
                   {searching ? "No encontramos ese Pokémon" : "No encontramos coincidencias"}
                 </h2>
                 <p className="mt-2 text-[#334155]">
@@ -347,18 +347,18 @@ export default function PokemonExplorer({ initialCatalog }: { initialCatalog: Po
         className={`flex min-h-24 items-center justify-center py-8 ${searching ? "hidden" : ""}`}
         aria-live="polite"
       >
-        {isLoading && <p className="font-semibold text-[#172554]">Cargando más Pokémon…</p>}
+        {isLoading && <p className="font-semibold text-[#1e1b4b]">Cargando más Pokémon…</p>}
         {!isLoading && error && (
           <button
             type="button"
             onClick={() => void loadMore()}
-            className="rounded-xl bg-[#3b4cca] px-4 py-2 text-sm font-bold text-white hover:bg-[#172554]"
+            className="rounded-xl bg-[#3b4cca] px-4 py-2 text-sm font-bold text-white hover:bg-[#1e1b4b]"
           >
             Reintentar
           </button>
         )}
         {!isLoading && !error && !hasMore && (
-          <p className="text-sm font-semibold text-[#172554]">Has llegado al final de la Pokédex.</p>
+          <p className="text-sm font-semibold text-[#1e1b4b]">Has llegado al final de la Pokédex.</p>
         )}
       </div>
     </section>

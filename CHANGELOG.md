@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-10-12
+
+### Added
+
+- Nueva identidad visual inspirada en el segmento "¿Quién es ese Pokémon?" de la serie animada: el catálogo muestra el arte oficial como **silueta negra con badge "?"** que se **revela en color al pasar el ratón**.
+- Cabecera del catálogo con la tagline retro "¿QUIÉN ES ESE POKÉMON?" en amarillo con sombra dura índigo/azul.
+
+### Changed
+
+- Fondo del catálogo: del rojo a la noche índigo/violeta (`#1e1b4b → #312e81 → #5b21b6`) con glows amarillo, azul y lila.
+- Vista de detalle como momento del "reveal": hero índigo/violeta, cartel "¡Es {nombre}!" y acentos de la nueva paleta (`#3b4cca`/`#1e1b4b`).
+- El borde de las tarjetas pasa a amarillo al hover y se unifica el navy de acento a `#1e1b4b`.
+
 ## [0.5.0] - 2026-10-12
 
 ### Fixed
@@ -91,7 +104,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `AGENTS.md`: se amplía la estructura de archivos reportada y el flujo de trabajo de Codex (documentar, versionar y registrar cada cambio).
 
-[Unreleased]: https://github.com/brytekatze/mbs-pokedex/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/brytekatze/mbs-pokedex/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/brytekatze/mbs-pokedex/releases/tag/v0.6.0
 [0.5.0]: https://github.com/brytekatze/mbs-pokedex/releases/tag/v0.5.0
 [0.4.5]: https://github.com/brytekatze/mbs-pokedex/releases/tag/v0.4.5
 [0.3.1]: https://github.com/brytekatze/mbs-pokedex/releases/tag/v0.3.1
