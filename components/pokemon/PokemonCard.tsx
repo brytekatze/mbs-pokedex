@@ -8,9 +8,9 @@ export default function PokemonCard({ pokemon }: { pokemon: PokemonCardData }): 
   return (
     <Link
       href={`/pokemon/${pokemon.name}`}
-      className="group overflow-hidden rounded-3xl border border-slate-200 bg-white p-4 shadow-sm transition hover:-translate-y-1 hover:border-red-200 hover:shadow-xl"
+      className="group overflow-hidden rounded-3xl border-2 border-white/80 bg-white p-4 shadow-lg shadow-[#172554]/10 transition hover:-translate-y-1 hover:border-[#e3350d] hover:shadow-xl hover:shadow-[#172554]/20"
     >
-      <div className="relative aspect-square overflow-hidden rounded-2xl bg-gradient-to-br from-slate-50 to-red-50">
+      <div className="relative aspect-square overflow-hidden rounded-2xl bg-white">
         <Image
           src={pokemon.image}
           alt={`Ilustración oficial de ${capitalize(pokemon.name)}`}

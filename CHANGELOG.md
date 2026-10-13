@@ -7,6 +7,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-10-12
+
+### Fixed
+
+- "Todas las generaciones" ahora incluye todos los Pokémon (antes ocultaba las formas con id > 1025, ej. mega y regionales).
+- La búsqueda vuelve a consultar la PokéAPI por nombre o ID desde el primer momento, en lugar de limitarse a lo ya cargado.
+
+### Changed
+
+- La vista de detalle recupera un fondo y acentos acordes a la identidad visual (rojo/amarillo/azul).
+- El menú de tipos admite navegación por teclado y declara `aria-haspopup="listbox"`.
+- Se consolida el historial 0.4.0–0.4.5 del catálogo interactivo en una sola entrada y se fusiona la documentación duplicada.
+
+### Removed
+
+- `docs/ajustes-controles-catalogo.md`, fusionado con `docs/catalogo-interactivo.md`.
+
+## [0.4.5] - 2026-10-12
+
+### Added
+
+- Infinite scroll con carga progresiva de bloques de 24 Pokémon.
+- Filtros reactivos por tipo, generación y orden alfabético o numérico.
+- Logo de Pokémon en PNG centrado en el encabezado.
+
+### Changed
+
+- La búsqueda filtra nombres e IDs conforme se escribe (en 0.5.0 se sustituye por la búsqueda contra la API).
+- Se renueva la identidad visual: fondo rojo predominante con acentos amarillo y azul, panel de filtros y tarjetas con fondo blanco, e imagen de las tarjetas sobre fondo blanco.
+- Tipo se presenta como combobox multiselección; los chips representan únicamente filtros activos removibles, en el orden Search, Ordenar, Generación y Tipo.
+- El menú de tipos se muestra por encima del grid de tarjetas.
+
+### Removed
+
+- La navegación de paginación anterior y su dependencia de los parámetros `page`/`q` en la URL.
+- La leyenda "PokéAPI · Fase 1" del encabezado.
+
 ## [0.3.1] - 2026-10-12
 
 ### Fixed
@@ -54,7 +91,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `AGENTS.md`: se amplía la estructura de archivos reportada y el flujo de trabajo de Codex (documentar, versionar y registrar cada cambio).
 
-[Unreleased]: https://github.com/brytekatze/mbs-pokedex/compare/v0.3.1...HEAD
+[Unreleased]: https://github.com/brytekatze/mbs-pokedex/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/brytekatze/mbs-pokedex/releases/tag/v0.5.0
+[0.4.5]: https://github.com/brytekatze/mbs-pokedex/releases/tag/v0.4.5
 [0.3.1]: https://github.com/brytekatze/mbs-pokedex/releases/tag/v0.3.1
 [0.3.0]: https://github.com/brytekatze/mbs-pokedex/releases/tag/v0.3.0
 [0.2.0]: https://github.com/brytekatze/mbs-pokedex/releases/tag/v0.2.0
