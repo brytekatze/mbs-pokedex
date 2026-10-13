@@ -11,3 +11,5 @@
 | [pokeapi-openapi.md](./pokeapi-openapi.md) | Especificación OpenAPI oficial de PokéAPI usada como contrato de referencia. | Vigente |
 | [pokedex-fase-1-mvp.md](./pokedex-fase-1-mvp.md) | Implementación del catálogo y detalle de Pokémon para la Fase 1. | Vigente |
 | [correcciones-post-revision.md](./correcciones-post-revision.md) | Correcciones de la revisión previa al merge: paginación, acotación de página, formato y accesibilidad. | Vigente |
+| [catalogo-interactivo.md](./catalogo-interactivo.md) | Infinite scroll, búsqueda reactiva, filtros y renovación visual del catálogo. | Vigente |
+| [ajustes-controles-catalogo.md](./ajustes-controles-catalogo.md) | Orden y comportamiento de los controles, chips removibles, multiselección, logo y ajuste visual. | Vigente |
