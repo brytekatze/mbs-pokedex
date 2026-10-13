@@ -13,3 +13,4 @@
 | [correcciones-post-revision.md](./correcciones-post-revision.md) | Correcciones de la revisión previa al merge: paginación, acotación de página, formato y accesibilidad. | Vigente |
 | [catalogo-interactivo.md](./catalogo-interactivo.md) | Infinite scroll, búsqueda contra la PokéAPI, filtros por tipo/generación/orden y renovación visual del catálogo. | Vigente |
 | [revision-catalogo-interactivo.md](./revision-catalogo-interactivo.md) | Revisión del catálogo: fix de generaciones, búsqueda server-side restaurada, detalle coherente y a11y. | Vigente |
+| [estilo-quien-es-ese-pokemon.md](./estilo-quien-es-ese-pokemon.md) | Nueva identidad visual inspirada en el segmento "¿Quién es ese Pokémon?": siluetas, reveal por hover y paleta índigo/violeta. | Vigente |
