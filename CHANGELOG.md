@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-10-12
+
+### Added
+
+- Catálogo Pokédex paginado y buscable con datos reales de PokéAPI.
+- Vista de detalle con descripción localizada, tipos, medidas, habilidades y estadísticas base.
+- Componentes tipados, estados de carga/error y estilos responsivos con Tailwind CSS.
+
+### Changed
+
+- Configuración de `next/image` para servir official artwork desde `raw.githubusercontent.com`.
+- La tipografía del layout usa una pila local para evitar fallos de build por descargas externas.
+
 ## [0.2.0] - 2026-10-12
 
 ### Added
@@ -20,5 +33,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `AGENTS.md`: se amplía la estructura de archivos reportada y el flujo de trabajo de Codex (documentar, versionar y registrar cada cambio).
 
-[Unreleased]: https://github.com/brytekatze/mbs-pokedex/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/brytekatze/mbs-pokedex/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/brytekatze/mbs-pokedex/releases/tag/v0.3.0
 [0.2.0]: https://github.com/brytekatze/mbs-pokedex/releases/tag/v0.2.0

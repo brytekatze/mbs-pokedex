@@ -10,6 +10,7 @@
 | --- | --- | --- |
 | [pokeapi-openapi.md](./pokeapi-openapi.md) | Especificación OpenAPI oficial de PokéAPI usada como contrato de referencia. | Vigente |
 | [agentes-y-convenciones.md](./agentes-y-convenciones.md) | Reglas del proyecto: documentación en `docs/`, versionado SemVer y `CHANGELOG.md`. | Vigente |
+| [pokedex-fase-1-mvp.md](./pokedex-fase-1-mvp.md) | Implementación del catálogo y detalle de Pokémon para la Fase 1. | Vigente |
 
 ## Plantilla de documento
 
