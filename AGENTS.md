@@ -44,11 +44,15 @@ Toda nueva funcionalidad debe seguir la siguiente estructura:
 ├── lib/                  # Helpers, constantes y utilidades
 │   ├── colors.ts         # Mapeo de colores por tipo de Pokémon
 │   └── utils.ts
-├── openapi/
-│   └── pokeapi.yml       # Especificación OpenAPI oficial de PokéAPI (referencia, solo lectura)
+├── context/              # Material de referencia y contexto del proyecto
+│   └── openapi/
+│       └── pokeapi.yml   # Especificación OpenAPI oficial de PokéAPI (solo lectura)
+├── docs/                 # Documentación en Markdown de cada tarea/cambio (ver sección 5)
+│   └── README.md         # Índice de la documentación
+└── CHANGELOG.md          # Registro de cambios (Keep a Changelog 1.1.0, ver sección 5)
 ```
 
-> **Nota**: `openapi/pokeapi.yml` es la especificación oficial de PokéAPI (OpenAPI 3.1.0). Es un archivo de **solo lectura** y sirve como contrato de referencia para los tipos y servicios. No debe modificarse manualmente.
+> **Nota**: `context/openapi/pokeapi.yml` es la especificación oficial de PokéAPI (OpenAPI 3.1.0). Es un archivo de **solo lectura** y sirve como contrato de referencia para los tipos y servicios. No debe modificarse manualmente.
 
 ---
 
@@ -100,14 +104,64 @@ Para mantener el proyecto limpio, ligero y predecible, **queda terminantemente p
    - **NO** crear archivos CSS adicionales o `.module.css`. Se utiliza exclusivamente Tailwind CSS v4 y las variables definidas en `app/globals.css`.
 6. **Alcance y Archivos de Configuración**:
    - **NO** agregar funcionalidades fuera del alcance acordado (como sistemas de batalla, autenticación con Supabase/Firebase, etc.).
-   - **NO** modificar `package.json`, `tsconfig.json` ni archivos raíz salvo que sea indispensable (como habilitar dominios en `next.config.ts`), notificándolo en el resumen.
+   - **NO** modificar `package.json`, `tsconfig.json` ni archivos raíz salvo que sea indispensable (como habilitar dominios en `next.config.ts`), notificándolo en el resumen. **Excepción**: el incremento de `version` en `package.json` exigido por la sección 5.2 siempre aplica y no requiere justificación adicional.
    - **NO** borrar ni sobreescribir archivos existentes sin verificar previamente su propósito.
 
 ---
 
-## 5. Flujo de Trabajo y Verificación de Codex
+## 5. Documentación, Versionado y Changelog
+
+Esta sección es **obligatoria** para toda tarea que modifique el proyecto.
+
+### 5.1. Documentación en `docs/`
+
+- **Todo** cambio, tarea o decisión técnica que realice el asistente debe quedar documentado en archivos **Markdown** dentro de la carpeta `docs/`.
+- **Un archivo por tarea/cambio**, con nombre descriptivo en `kebab-case` (ej.: `docs/servicio-pokeapi.md`, `docs/vista-detalle-pokemon.md`).
+- Cada documento debe incluir como mínimo:
+  1. **Objetivo**: qué se buscaba resolver.
+  2. **Cambios realizados**: descripción de alto nivel.
+  3. **Archivos afectados**: rutas creadas o modificadas.
+  4. **Decisiones técnicas**: el *por qué* de las elecciones relevantes.
+  5. **Cómo verificar/probar**: pasos concretos.
+  6. **Pendientes**: trabajo futuro o limitaciones conocidas.
+- Mantener actualizado `docs/README.md` como **índice** con enlaces a cada documento.
+- **No duplicar** información: `CHANGELOG.md` responde al *qué cambió*; `docs/` responde al *por qué y cómo*.
+
+### 5.2. Versionado en `package.json` (SemVer)
+
+- **Cada cambio de código exige incrementar** el campo `version` de `package.json` siguiendo [Semantic Versioning](https://semver.org/):
+  - **MAJOR** (`x.0.0`): cambios incompatibles o *breaking changes*.
+  - **MINOR** (`0.x.0`): nuevas funcionalidades retrocompatibles.
+  - **PATCH** (`0.0.x`): correcciones de bugs, refactors internos, estilos o documentación sin cambio de comportamiento.
+- En la fase inicial `0.y.z` se aplica el mismo criterio de forma pragmática.
+- Usar `npm version <major|minor|patch> --no-git-tag-version` para evitar commits y tags automáticos no deseados.
+- El incremento de versión debe realizarse **en el mismo cambio/commit** que la modificación que lo origina.
+
+### 5.3. `CHANGELOG.md` (Keep a Changelog 1.1.0)
+
+- **Todo cambio debe verse reflejado** en `CHANGELOG.md` siguiendo estrictamente la estructura de <https://keepachangelog.com/en/1.1.0/>.
+- El archivo se organiza por versiones, de la más reciente a la más antigua, con el formato:
+  ```markdown
+  ## [1.2.0] - 2026-10-12
+
+  ### Added
+  - Nueva funcionalidad X.
+
+  ### Fixed
+  - Corrección del bug Y.
+  ```
+- **Tipos de cambio permitidos** (usar solo los que apliquen): `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security`.
+- El trabajo en curso se registra bajo `## [Unreleased]`. Al cerrar el cambio, esa entrada se mueve a una sección con la **misma versión** que se definió en `package.json` y su **fecha** (`YYYY-MM-DD`).
+- **Nunca** dejar un cambio de código sin su entrada en el changelog.
+
+---
+
+## 6. Flujo de Trabajo y Verificación de Codex
 1. **No romper código existente**: Antes de modificar o refactorizar, entender el contexto existente.
 2. **Preservar bloques automáticos**: Nunca eliminar el bloque `<!-- BEGIN:nextjs-agent-rules -->` ni alterar archivos de configuración sin necesidad explícita.
-3. **Verificación antes de concluir**:
+3. **Documentar el cambio**: crear/actualizar el documento correspondiente en `docs/` y su índice `docs/README.md` (sección 5.1).
+4. **Versionar**: incrementar `version` en `package.json` según SemVer (sección 5.2).
+5. **Registrar en el changelog**: añadir la entrada en `CHANGELOG.md` bajo la nueva versión (sección 5.3).
+6. **Verificación antes de concluir**:
    - Comprobar que no haya errores de TypeScript ni advertencias de linting (`npm run lint` / `npm run build`).
-4. **Respuestas concisas**: Al entregar una tarea, resumir brevemente qué se implementó y cuáles son los siguientes pasos recomendados.
+7. **Respuestas concisas**: Al entregar una tarea, resumir brevemente qué se implementó, la versión nueva y cuáles son los siguientes pasos recomendados.
