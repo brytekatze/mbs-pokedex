@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 export default function SearchInput({ initialQuery }: { initialQuery: string }): React.ReactElement {
   const [query, setQuery] = useState(initialQuery);
@@ -13,13 +13,24 @@ export default function SearchInput({ initialQuery }: { initialQuery: string }):
     const timeout = window.setTimeout(() => {
       const params = new URLSearchParams(searchParams.toString());
       const value = query.trim();
-      const currentValue = params.get('q') ?? '';
-      if (value === currentValue && !params.has('page')) return;
-      if (value) params.set('q', value);
-      else params.delete('q');
-      params.delete('page');
+      const currentValue = params.get("q") ?? "";
+
+      // Sin cambios en el término de búsqueda no se navega: así no se pierde
+      // el parámetro `page` al paginar.
+      if (value === currentValue) {
+        return;
+      }
+
+      if (value) {
+        params.set("q", value);
+      } else {
+        params.delete("q");
+      }
+      params.delete("page");
+
       router.replace(`${pathname}?${params.toString()}`);
     }, 450);
+
     return () => window.clearTimeout(timeout);
   }, [pathname, query, router, searchParams]);
 

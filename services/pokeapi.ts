@@ -1,14 +1,14 @@
+import { getPokemonIdFromUrl } from "@/lib/utils";
 import type {
   NamedApiResource,
-  PokemonCatalog,
   PokemonCardData,
+  PokemonCatalog,
   PokemonDetail,
   PokemonListResponse,
   PokemonSpeciesDetail,
-} from '@/types/pokemon';
-import { getPokemonIdFromUrl } from '@/lib/utils';
+} from "@/types/pokemon";
 
-const API_URL = 'https://pokeapi.co/api/v2';
+const API_URL = "https://pokeapi.co/api/v2";
 export const PAGE_SIZE = 24;
 
 async function fetchPokeApi<T>(path: string): Promise<T> {
@@ -19,22 +19,43 @@ async function fetchPokeApi<T>(path: string): Promise<T> {
   return response.json() as Promise<T>;
 }
 
+function fetchListing(page: number): Promise<PokemonListResponse> {
+  const offset = (page - 1) * PAGE_SIZE;
+  return fetchPokeApi<PokemonListResponse>(`/pokemon?limit=${PAGE_SIZE}&offset=${offset}`);
+}
+
+/**
+ * Total de Pokémon disponibles. Se consulta con `limit=1` (respuesta mínima y
+ * cacheada) para acotar la paginación y construir mensajes con el dato real.
+ */
+export async function getPokemonCount(): Promise<number> {
+  const listing = await fetchPokeApi<PokemonListResponse>("/pokemon?limit=1");
+  return listing.count;
+}
+
 export async function getPokemonList(page: number): Promise<PokemonCatalog> {
-  const safePage = Math.max(1, page);
-  const offset = (safePage - 1) * PAGE_SIZE;
-  const listing = await fetchPokeApi<PokemonListResponse>(`/pokemon?limit=${PAGE_SIZE}&offset=${offset}`);
-  const items = await Promise.all(listing.results.map(getPokemonCard));
+  const requestedPage = Number.isFinite(page) ? Math.max(1, Math.floor(page)) : 1;
+  const firstPage = await fetchListing(requestedPage);
+  const totalPages = Math.max(1, Math.ceil(firstPage.count / PAGE_SIZE));
+  const safePage = Math.min(requestedPage, totalPages);
+
+  // Solo se repite la consulta cuando la página pedida estaba fuera de rango.
+  const listing = safePage === requestedPage ? firstPage : await fetchListing(safePage);
+
   return {
     count: listing.count,
-    items,
+    items: await Promise.all(listing.results.map(getPokemonCard)),
     page: safePage,
-    totalPages: Math.ceil(listing.count / PAGE_SIZE),
+    totalPages,
   };
 }
 
 export async function getPokemonByQuery(query: string): Promise<PokemonCardData | null> {
   const normalized = query.trim().toLowerCase();
-  if (!normalized) return null;
+  if (!normalized) {
+    return null;
+  }
+
   try {
     const detail = await getPokemon(normalized);
     return toCardData(detail);
@@ -62,7 +83,7 @@ function toCardData(detail: PokemonDetail): PokemonCardData {
   return {
     id: detail.id,
     name: detail.name,
-    image: detail.sprites.other?.['official-artwork']?.front_default ?? detail.sprites.front_default ?? '',
+    image: detail.sprites.other?.["official-artwork"]?.front_default ?? detail.sprites.front_default ?? "",
     types: detail.types.map(({ type }) => type.name),
   };
 }

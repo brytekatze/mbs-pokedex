@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-10-12
+
+### Fixed
+
+- La paginación ya no revierte a la primera página al pulsar "Anterior"/"Siguiente".
+- El catálogo acota la página solicitada al rango disponible en lugar de mostrar un estado vacío.
+- El mensaje "no encontramos ese Pokémon" usa el total real de Pokémon en lugar de un valor fijo.
+- Se corrige el contraste de textos secundarios (`slate-400` → `slate-500`) detectado por Lighthouse.
+- Los controles deshabilitados de paginación ya no son navegables con teclado.
+
+### Changed
+
+- `SearchInput` solo actualiza la URL cuando el término de búsqueda cambia realmente.
+- El catálogo usa el componente `PokemonGrid` en lugar de duplicar el grid en la página.
+- Se reformatea el JSX de páginas y componentes a un formato multilínea legible y consistente.
+- Los botones de reintento de los `error.tsx` ahora declaran `type="button"`.
+
+### Removed
+
+- `docs/agentes-y-convenciones.md`, que duplicaba reglas ya presentes en `AGENTS.md`.
+
 ## [0.3.0] - 2026-10-12
 
 ### Added
@@ -33,6 +54,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `AGENTS.md`: se amplía la estructura de archivos reportada y el flujo de trabajo de Codex (documentar, versionar y registrar cada cambio).
 
-[Unreleased]: https://github.com/brytekatze/mbs-pokedex/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/brytekatze/mbs-pokedex/compare/v0.3.1...HEAD
+[0.3.1]: https://github.com/brytekatze/mbs-pokedex/releases/tag/v0.3.1
 [0.3.0]: https://github.com/brytekatze/mbs-pokedex/releases/tag/v0.3.0
 [0.2.0]: https://github.com/brytekatze/mbs-pokedex/releases/tag/v0.2.0
