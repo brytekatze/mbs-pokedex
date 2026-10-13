@@ -19,8 +19,11 @@ export default function PokemonDetailView({ pokemon, species }: PokemonDetailVie
   const artwork = pokemon.sprites.other?.["official-artwork"]?.front_default ?? pokemon.sprites.front_default ?? "";
 
   return (
-    <main className="mx-auto w-full max-w-6xl px-5 py-8 sm:px-8 lg:py-12">
-      <Link href="/" className="mb-8 inline-flex items-center gap-2 text-sm font-bold text-slate-500 transition hover:text-red-600">
+    <main className="relative isolate min-h-screen overflow-hidden bg-gradient-to-br from-slate-50 via-white to-red-50 px-5 py-8 sm:px-8 lg:py-12">
+      <Link
+        href="/"
+        className="mb-8 inline-flex items-center gap-2 text-sm font-bold text-[#e3350d] transition hover:text-[#7f1d1d]"
+      >
         ← Volver al catálogo
       </Link>
 
@@ -71,7 +74,7 @@ export default function PokemonDetailView({ pokemon, species }: PokemonDetailVie
           </section>
 
           <section className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-            <h2 className="text-2xl font-black text-slate-900">Estadísticas base</h2>
+            <h2 className="text-2xl font-black text-[#172554]">Estadísticas base</h2>
             <div className="mt-6 space-y-4">
               {pokemon.stats.map(({ stat, base_stat }) => (
                 <StatBar key={stat.name} name={stat.name} value={base_stat} />

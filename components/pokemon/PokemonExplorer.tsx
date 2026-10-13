@@ -3,12 +3,42 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import PokemonGrid from "@/components/pokemon/PokemonGrid";
 import SearchInput from "@/components/ui/SearchInput";
-import { getPokemonList } from "@/services/pokeapi";
-import type { PokemonCatalog, PokemonCardData } from "@/types/pokemon";
+import { getPokemonByQuery, getPokemonList } from "@/services/pokeapi";
+import type { PokemonCardData, PokemonCatalog } from "@/types/pokemon";
 
-const pokemonTypes = ["all", "normal", "fire", "water", "electric", "grass", "ice", "fighting", "poison", "ground", "flying", "psychic", "bug", "rock", "ghost", "dragon", "dark", "steel", "fairy"];
-const generations = [
-  { label: "Todas las generaciones", value: "all", min: 1, max: 1025 },
+const pokemonTypes = [
+  "all",
+  "normal",
+  "fire",
+  "water",
+  "electric",
+  "grass",
+  "ice",
+  "fighting",
+  "poison",
+  "ground",
+  "flying",
+  "psychic",
+  "bug",
+  "rock",
+  "ghost",
+  "dragon",
+  "dark",
+  "steel",
+  "fairy",
+];
+
+type GenerationOption = {
+  label: string;
+  value: string;
+  min?: number;
+  max?: number;
+};
+
+// "Todas las generaciones" no declara rango: incluye todos los Pokémon, también
+// las formas con id > 1025 (mega, regionales, etc.).
+const generations: GenerationOption[] = [
+  { label: "Todas las generaciones", value: "all" },
   { label: "Generación I", value: "1", min: 1, max: 151 },
   { label: "Generación II", value: "2", min: 152, max: 251 },
   { label: "Generación III", value: "3", min: 252, max: 386 },
@@ -21,13 +51,16 @@ const generations = [
 ];
 
 function sortItems(items: PokemonCardData[], sort: string): PokemonCardData[] {
-  return [...items].sort((a, b) => sort === "name" ? a.name.localeCompare(b.name) : a.id - b.id);
+  return [...items].sort((a, b) => (sort === "name" ? a.name.localeCompare(b.name) : a.id - b.id));
 }
 
 export default function PokemonExplorer({ initialCatalog }: { initialCatalog: PokemonCatalog }): React.ReactElement {
   const [items, setItems] = useState(initialCatalog.items);
   const [page, setPage] = useState(initialCatalog.page);
   const [query, setQuery] = useState("");
+  const [searchedQuery, setSearchedQuery] = useState("");
+  const [searchResult, setSearchResult] = useState<PokemonCardData | null>(null);
+  const [resultQuery, setResultQuery] = useState("");
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [generation, setGeneration] = useState("all");
   const [sort, setSort] = useState("id");
@@ -36,7 +69,9 @@ export default function PokemonExplorer({ initialCatalog }: { initialCatalog: Po
   const [error, setError] = useState<string | null>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);
   const typeMenuRef = useRef<HTMLDivElement>(null);
+  const typeTriggerRef = useRef<HTMLButtonElement>(null);
   const hasMore = page < initialCatalog.totalPages;
+  const searching = query.trim() !== "";
 
   const loadMore = useCallback(async () => {
     if (isLoading || !hasMore) return;
@@ -53,12 +88,39 @@ export default function PokemonExplorer({ initialCatalog }: { initialCatalog: Po
     }
   }, [hasMore, isLoading, page]);
 
+  // Debounce de la búsqueda antes de consultar la API.
+  useEffect(() => {
+    const timeout = window.setTimeout(() => setSearchedQuery(query.trim().toLowerCase()), 350);
+    return () => window.clearTimeout(timeout);
+  }, [query]);
+
+  // Búsqueda exacta contra la PokéAPI (nombre o ID), no sobre lo ya cargado.
+  useEffect(() => {
+    const value = searchedQuery;
+    if (!value) return;
+    let active = true;
+    void getPokemonByQuery(value).then((result) => {
+      if (!active) return;
+      setSearchResult(result);
+      setResultQuery(value);
+    });
+    return () => {
+      active = false;
+    };
+  }, [searchedQuery]);
+
+  // TRUE mientras el término buscado aún no tiene resultado asociado.
+  const searchLoading = searchedQuery !== "" && searchedQuery !== resultQuery;
+
   useEffect(() => {
     const sentinel = sentinelRef.current;
     if (!sentinel) return;
-    const observer = new IntersectionObserver((entries) => {
-      if (entries[0]?.isIntersecting) void loadMore();
-    }, { rootMargin: "500px" });
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) void loadMore();
+      },
+      { rootMargin: "500px" }
+    );
     observer.observe(sentinel);
     return () => observer.disconnect();
   }, [loadMore]);
@@ -74,26 +136,78 @@ export default function PokemonExplorer({ initialCatalog }: { initialCatalog: Po
   }, []);
 
   const visibleItems = useMemo(() => {
-    const normalizedQuery = query.trim().toLowerCase();
     const selectedGeneration = generations.find((entry) => entry.value === generation) ?? generations[0];
-    const filtered = items.filter((pokemon) => {
-      const matchesQuery = !normalizedQuery || pokemon.name.includes(normalizedQuery) || String(pokemon.id).includes(normalizedQuery);
-      const matchesType = selectedTypes.length === 0 || selectedTypes.some((selectedType) => pokemon.types.includes(selectedType));
-      const matchesGeneration = pokemon.id >= selectedGeneration.min && pokemon.id <= selectedGeneration.max;
-      return matchesQuery && matchesType && matchesGeneration;
-    });
-    return sortItems(filtered, sort);
-  }, [generation, items, query, selectedTypes, sort]);
+    const matchesFilters = (pokemon: PokemonCardData) => {
+      const matchesType =
+        selectedTypes.length === 0 || selectedTypes.some((selectedType) => pokemon.types.includes(selectedType));
+      const inGeneration =
+        !selectedGeneration.min || !selectedGeneration.max ||
+        (pokemon.id >= selectedGeneration.min && pokemon.id <= selectedGeneration.max);
+      return matchesType && inGeneration;
+    };
+    if (searching) {
+      return searchResult && matchesFilters(searchResult) ? sortItems([searchResult], sort) : [];
+    }
+    return sortItems(items.filter(matchesFilters), sort);
+  }, [generation, items, searchResult, searching, selectedTypes, sort]);
 
   const selectedGeneration = generations.find((entry) => entry.value === generation);
   const activeFilters = [
-    ...selectedTypes.map((selectedType) => ({ label: `Tipo: ${selectedType}`, clear: () => setSelectedTypes((current) => current.filter((type) => type !== selectedType)) })),
+    ...selectedTypes.map((selectedType) => ({
+      label: `Tipo: ${selectedType}`,
+      clear: () => setSelectedTypes((current) => current.filter((type) => type !== selectedType)),
+    })),
     generation !== "all" && selectedGeneration ? { label: selectedGeneration.label, clear: () => setGeneration("all") } : null,
   ].filter((filter): filter is { label: string; clear: () => void } => filter !== null);
 
   const toggleType = (pokemonType: string) => {
-    setSelectedTypes((current) => current.includes(pokemonType) ? current.filter((type) => type !== pokemonType) : [...current, pokemonType]);
+    setSelectedTypes((current) =>
+      current.includes(pokemonType) ? current.filter((type) => type !== pokemonType) : [...current, pokemonType]
+    );
   };
+
+  const handleTypeTriggerKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
+    if (event.key === "Escape") {
+      setIsTypeMenuOpen(false);
+      event.stopPropagation();
+    } else if (event.key === "ArrowDown") {
+      event.preventDefault();
+      setIsTypeMenuOpen(true);
+      window.setTimeout(() => {
+        const options = Array.from(typeMenuRef.current?.querySelectorAll<HTMLButtonElement>('[role="option"]') ?? []);
+        options[0]?.focus();
+      }, 0);
+    } else if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      setIsTypeMenuOpen((open) => !open);
+    }
+  };
+
+  const handleTypeListKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    const options = Array.from(typeMenuRef.current?.querySelectorAll<HTMLButtonElement>('[role="option"]') ?? []);
+    if (options.length === 0) return;
+    const currentIndex = options.findIndex((option) => option === document.activeElement);
+    if (event.key === "Escape") {
+      setIsTypeMenuOpen(false);
+      typeTriggerRef.current?.focus();
+    } else if (event.key === "ArrowDown") {
+      event.preventDefault();
+      options[(currentIndex + 1) % options.length]?.focus();
+    } else if (event.key === "ArrowUp") {
+      event.preventDefault();
+      options[(currentIndex - 1 + options.length) % options.length]?.focus();
+    }
+  };
+
+  const resultsCountLine = searching
+    ? searchLoading
+      ? "Buscando…"
+      : searchResult
+        ? "Resultado de la búsqueda"
+        : "Sin resultados en la Pokédex"
+    : visibleItems.length === 0
+      ? "Sin resultados con estos filtros"
+      : `${visibleItems.length} Pokémon visibles`;
 
   return (
     <section aria-label="Catálogo de Pokémon">
@@ -103,29 +217,76 @@ export default function PokemonExplorer({ initialCatalog }: { initialCatalog: Po
           <div className="flex flex-wrap gap-3">
             <label className="flex min-w-40 flex-1 flex-col gap-1 text-xs font-bold uppercase tracking-wide text-slate-500">
               Ordenar
-              <select value={sort} onChange={(event) => setSort(event.target.value)} className="h-11 rounded-xl border border-[#3b4cca]/30 bg-white px-3 text-sm font-semibold normal-case tracking-normal text-[#172554] outline-none focus:border-[#3b4cca] focus:ring-4 focus:ring-[#3b4cca]/20">
+              <select
+                value={sort}
+                onChange={(event) => setSort(event.target.value)}
+                className="h-11 rounded-xl border border-[#3b4cca]/30 bg-white px-3 text-sm font-semibold normal-case tracking-normal text-[#172554] outline-none focus:border-[#3b4cca] focus:ring-4 focus:ring-[#3b4cca]/20"
+              >
                 <option value="id">Número Pokédex</option>
                 <option value="name">Nombre A-Z</option>
               </select>
             </label>
             <label className="flex min-w-48 flex-1 flex-col gap-1 text-xs font-bold uppercase tracking-wide text-slate-500">
               Generación
-              <select value={generation} onChange={(event) => setGeneration(event.target.value)} className="h-11 rounded-xl border border-[#3b4cca]/30 bg-white px-3 text-sm font-semibold normal-case tracking-normal text-[#172554] outline-none focus:border-[#3b4cca] focus:ring-4 focus:ring-[#3b4cca]/20">
-                {generations.map((entry) => <option key={entry.value} value={entry.value}>{entry.label}</option>)}
+              <select
+                value={generation}
+                onChange={(event) => setGeneration(event.target.value)}
+                className="h-11 rounded-xl border border-[#3b4cca]/30 bg-white px-3 text-sm font-semibold normal-case tracking-normal text-[#172554] outline-none focus:border-[#3b4cca] focus:ring-4 focus:ring-[#3b4cca]/20"
+              >
+                {generations.map((entry) => (
+                  <option key={entry.value} value={entry.value}>
+                    {entry.label}
+                  </option>
+                ))}
               </select>
             </label>
             <div ref={typeMenuRef} className="relative flex min-w-48 flex-1 flex-col gap-1 text-xs font-bold uppercase tracking-wide text-slate-500">
               <span>Tipo</span>
-              <button type="button" role="combobox" aria-expanded={isTypeMenuOpen} aria-controls="pokemon-type-options" onClick={() => setIsTypeMenuOpen((open) => !open)} className="flex h-11 items-center justify-between rounded-xl border border-slate-300 bg-white px-3 text-left text-sm font-semibold normal-case tracking-normal text-[#172554] outline-none transition hover:border-[#3b4cca] focus:border-[#3b4cca] focus:ring-4 focus:ring-[#3b4cca]/20">
+              <button
+                ref={typeTriggerRef}
+                type="button"
+                role="combobox"
+                aria-expanded={isTypeMenuOpen}
+                aria-haspopup="listbox"
+                aria-controls="pokemon-type-options"
+                onClick={() => setIsTypeMenuOpen((open) => !open)}
+                onKeyDown={handleTypeTriggerKeyDown}
+                className="flex h-11 items-center justify-between rounded-xl border border-slate-300 bg-white px-3 text-left text-sm font-semibold normal-case tracking-normal text-[#172554] outline-none transition hover:border-[#3b4cca] focus:border-[#3b4cca] focus:ring-4 focus:ring-[#3b4cca]/20"
+              >
                 <span>{selectedTypes.length === 0 ? "Todos los tipos" : `${selectedTypes.length} seleccionados`}</span>
                 <span aria-hidden="true">⌄</span>
               </button>
               {isTypeMenuOpen && (
-                <div id="pokemon-type-options" role="listbox" aria-label="Seleccionar tipos de Pokémon" aria-multiselectable="true" className="absolute left-0 top-full z-50 mt-2 grid max-h-72 w-full min-w-64 grid-cols-2 gap-1 overflow-y-auto rounded-2xl border-2 border-[#3b4cca] bg-white p-2 text-xs normal-case tracking-normal shadow-2xl sm:grid-cols-3">
-                  {pokemonTypes.filter((pokemonType) => pokemonType !== "all").map((pokemonType) => {
-                    const isSelected = selectedTypes.includes(pokemonType);
-                    return <button key={pokemonType} type="button" role="option" aria-selected={isSelected} onClick={() => toggleType(pokemonType)} className={`flex items-center gap-2 rounded-lg px-2 py-2 text-left font-bold capitalize transition ${isSelected ? "bg-[#3b4cca] text-white" : "text-[#172554] hover:bg-[#ffde00]"}`}><span className={`flex h-4 w-4 items-center justify-center rounded border text-[10px] ${isSelected ? "border-white bg-white text-[#3b4cca]" : "border-[#172554]"}`}>{isSelected ? "✓" : ""}</span>{pokemonType}</button>;
-                  })}
+                <div
+                  id="pokemon-type-options"
+                  role="listbox"
+                  aria-label="Seleccionar tipos de Pokémon"
+                  aria-multiselectable="true"
+                  onKeyDown={handleTypeListKeyDown}
+                  className="absolute left-0 top-full z-50 mt-2 grid max-h-72 w-full min-w-64 grid-cols-2 gap-1 overflow-y-auto rounded-2xl border-2 border-[#3b4cca] bg-white p-2 text-xs normal-case tracking-normal shadow-2xl sm:grid-cols-3"
+                >
+                  {pokemonTypes
+                    .filter((pokemonType) => pokemonType !== "all")
+                    .map((pokemonType) => {
+                      const isSelected = selectedTypes.includes(pokemonType);
+                      return (
+                        <button
+                          key={pokemonType}
+                          type="button"
+                          role="option"
+                          aria-selected={isSelected}
+                          onClick={() => toggleType(pokemonType)}
+                          className={`flex items-center gap-2 rounded-lg px-2 py-2 text-left font-bold capitalize transition ${isSelected ? "bg-[#3b4cca] text-white" : "text-[#172554] hover:bg-[#ffde00]"}`}
+                        >
+                          <span
+                            className={`flex h-4 w-4 items-center justify-center rounded border text-[10px] ${isSelected ? "border-white bg-white text-[#3b4cca]" : "border-[#172554]"}`}
+                          >
+                            {isSelected ? "✓" : ""}
+                          </span>
+                          {pokemonType}
+                        </button>
+                      );
+                    })}
                 </div>
               )}
             </div>
@@ -135,7 +296,12 @@ export default function PokemonExplorer({ initialCatalog }: { initialCatalog: Po
           <div className="mt-5 flex flex-wrap items-center gap-2" aria-label="Filtros seleccionados">
             <span className="text-xs font-bold uppercase tracking-wide text-slate-500">Filtros:</span>
             {activeFilters.map((filter) => (
-              <button key={filter.label} type="button" onClick={filter.clear} className="inline-flex items-center gap-2 rounded-full bg-[#3b4cca] px-3 py-2 text-xs font-bold text-white transition hover:bg-[#172554]">
+              <button
+                key={filter.label}
+                type="button"
+                onClick={filter.clear}
+                className="inline-flex items-center gap-2 rounded-full bg-[#3b4cca] px-3 py-2 text-xs font-bold text-white transition hover:bg-[#172554]"
+              >
                 {filter.label}
                 <span aria-hidden="true" className="text-sm leading-none">×</span>
                 <span className="sr-only">Quitar {filter.label}</span>
@@ -146,18 +312,54 @@ export default function PokemonExplorer({ initialCatalog }: { initialCatalog: Po
       </div>
 
       <div className="mb-5 flex items-center justify-between gap-4 text-sm text-slate-600">
-        <p>{visibleItems.length === 0 ? "Sin resultados con estos filtros" : `${visibleItems.length} Pokémon visibles`}</p>
-        <p className="hidden text-right sm:block">Cargados {items.length} de {initialCatalog.count}</p>
+        <p>{resultsCountLine}</p>
+        {!searching && (
+          <p className="hidden text-right sm:block">
+            Cargados {items.length} de {initialCatalog.count}
+          </p>
+        )}
       </div>
 
       <div className="relative z-0">
-        {visibleItems.length > 0 ? <PokemonGrid items={visibleItems} /> : <div className="rounded-3xl border-2 border-dashed border-[#3b4cca] bg-white px-6 py-16 text-center"><p className="text-4xl">🔎</p><h2 className="mt-4 text-2xl font-black text-[#172554]">No encontramos coincidencias</h2><p className="mt-2 text-[#334155]">Prueba con otro nombre, tipo o generación.</p></div>}
+        {visibleItems.length > 0 ? (
+          <PokemonGrid items={visibleItems} />
+        ) : (
+          <div className="rounded-3xl border-2 border-dashed border-[#3b4cca] bg-white px-6 py-16 text-center">
+            {searching && searchLoading ? (
+              <p className="font-semibold text-[#172554]">Buscando…</p>
+            ) : (
+              <>
+                <p className="text-4xl">🔎</p>
+                <h2 className="mt-4 text-2xl font-black text-[#172554]">
+                  {searching ? "No encontramos ese Pokémon" : "No encontramos coincidencias"}
+                </h2>
+                <p className="mt-2 text-[#334155]">
+                  {searching ? "Prueba con otro nombre o un ID válido." : "Prueba con otro nombre, tipo o generación."}
+                </p>
+              </>
+            )}
+          </div>
+        )}
       </div>
 
-      <div ref={sentinelRef} className="flex min-h-24 items-center justify-center py-8" aria-live="polite">
+      <div
+        ref={sentinelRef}
+        className={`flex min-h-24 items-center justify-center py-8 ${searching ? "hidden" : ""}`}
+        aria-live="polite"
+      >
         {isLoading && <p className="font-semibold text-[#172554]">Cargando más Pokémon…</p>}
-        {!isLoading && error && <button type="button" onClick={() => void loadMore()} className="rounded-xl bg-[#3b4cca] px-4 py-2 text-sm font-bold text-white hover:bg-[#172554]">Reintentar</button>}
-        {!isLoading && !error && !hasMore && <p className="text-sm font-semibold text-[#172554]">Has llegado al final de la Pokédex.</p>}
+        {!isLoading && error && (
+          <button
+            type="button"
+            onClick={() => void loadMore()}
+            className="rounded-xl bg-[#3b4cca] px-4 py-2 text-sm font-bold text-white hover:bg-[#172554]"
+          >
+            Reintentar
+          </button>
+        )}
+        {!isLoading && !error && !hasMore && (
+          <p className="text-sm font-semibold text-[#172554]">Has llegado al final de la Pokédex.</p>
+        )}
       </div>
     </section>
   );
